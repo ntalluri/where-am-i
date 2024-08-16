@@ -17,9 +17,15 @@ COLLECTOR = "cm-1.ospool-itb.osg-htc.org"
 
 def main():
 
-    topology = get_topology_resource_data()
-    coll = htcondor.Collector(COLLECTOR)
+    # create useable_data dir if DNE
+    directory = 'useable_data'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
+    # getting topology data
+    topology = get_topology_resource_data()
+
+    # gather glideins that are partitionalble and certain attributes from ads
     projection = [
         "WhereAmIToCache", "GLIDEIN_Site", "GLIDEIN_ResourceName", "TracePathOutput", "PublicIPV4", "PublicIPV6", 
         "HasTCPPing", "TCPPingOutput","Hostnames" ,"HostnamesIPs","NetworkInterfaces",
@@ -27,27 +33,16 @@ def main():
         "HardwareAddress", "Microarch", "OSG_CPU_MODEL", "DetectedCpus", "DetectedGPUs", "DetectedMemory", 
         "GLIDEIN_MASTER_NAME"
     ]
-
-    version = "chick.6" 
+    version = "chick.6" # verison of where-am-i glidein script
     constraint = f'WhereAmIVersion == "{version}" && (SlotType == "Partitionable" || SlotType == "Static")'
+    coll = htcondor.Collector(COLLECTOR)
     ads = coll.query( 
         htcondor.AdTypes.Startd,
         projection=projection,
         constraint=constraint, 
     )
 
-    columns_df = [
-    'Cache Name', 'Institution','Site', 'Resource Name', 'Mac Address',
-    'Public IPV4', 'Latitude ipv4', 'Longitude ipv4', 'Accuracy ipv4', 
-    'Public IPV6', 'Latitude ipv6', 'Longitude ipv6', 'Accuracy ipv6',
-    'TracePath Hops', 'TracePath Latency (ms)', 'TracePath IPs', 
-    'Ping Latency Min', 'Ping Latency Avg', 'Ping Latency Max', 'Ping Latency Mdev',
-    'Host Names', 'Host Names IPs', 'Network Interfaces',
-    "Container Type", "Batch System", "Batch System CM", "Linux Kernel", 
-    "CPU Capabilities", "CPU kind", "Detected CPUs", "Detected GPUs", "Detected Memory", 
-    "Glidein ID"]
-    
-    # open main file with all unqiue Glidein ID's
+    # create/open file to hold all unqiue Glidein ID's (GLIDEIN_MASTER_NAME)
     id_file_path = 'collector_ids.csv'
     death = datetime.now().replace(hour=23, minute=30, second=0, microsecond=0)
     if os.path.exists(id_file_path):
@@ -63,9 +58,22 @@ def main():
         print("collector_ids DNE")
         collector_ids = pd.DataFrame(columns=["Glidein ID"])
     
-    # init df 
+
+    # init df
+    columns_df = [
+    'Cache Name', 'Institution','Site', 'Resource Name', 'Mac Address',
+    'Public IPV4', 'Latitude ipv4', 'Longitude ipv4', 'Accuracy ipv4', 
+    'Public IPV6', 'Latitude ipv6', 'Longitude ipv6', 'Accuracy ipv6',
+    'TracePath Hops', 'TracePath Latency (ms)', 'TracePath IPs', 
+    'Ping Latency Min', 'Ping Latency Avg', 'Ping Latency Max', 'Ping Latency Mdev',
+    'Host Names', 'Host Names IPs', 'Network Interfaces',
+    "Container Type", "Batch System", "Batch System CM", "Linux Kernel", 
+    "CPU Capabilities", "CPU kind", "Detected CPUs", "Detected GPUs", "Detected Memory", 
+    "Glidein ID"]
+
     df = pd.DataFrame(columns=columns_df)
-    print("number of ads:", len(ads))
+
+    # create a row in df that represents one ad/glidein
     for ad in ads:
         # get "easy" attributes
         cache = (ad['WhereAmIToCache'])
@@ -183,7 +191,7 @@ def main():
             'Glidein ID': glidein_id,
         }
 
-        # ping output 
+        # parse ping output 
         ping_output = ad['TCPPingOutput'].split('XbrX')
         
         if 'Unknown' not in ping_output: 
@@ -197,7 +205,7 @@ def main():
             new_row['Ping Latency Max'] = sum(pings) / len(pings)
             new_row['Ping Latency Mdev'] = st.pstdev(pings)
 
-        # trace path output
+        # parse traceroute output
         tp_output = ad['TracePathOutput'].split('XbrX')
         hops = []
         times = []
@@ -229,13 +237,15 @@ def main():
         if ips:
             new_row['TracePath IPs'] = ips[1:]
         
-        # last step
+        # add new row to df
         df.loc[len(df)] = new_row
 
+    # only save new glideins that aren't already in the data using collector_ids file and Glidein ID's from new data
     unique_df = df[~df["Glidein ID"].isin(collector_ids["Glidein ID"])]
     date = datetime.now().strftime("%Y-%m-%d_%H:%M:%S%p")
-    unique_df.to_csv(f"useable_data/collector.{date}.csv", index=False) 
+    unique_df.to_csv(f"{directory}/collector.{date}.csv", index=False) 
     
+    # update file with collector_ids
     updated_collector_ids = pd.concat([collector_ids["Glidein ID"], unique_df["Glidein ID"]], ignore_index=True)
     updated_collector_ids.to_csv(id_file_path, index=False)
 
