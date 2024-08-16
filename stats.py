@@ -1,7 +1,5 @@
 """
 TODO-LIST
-- comment code
-
 """
 import ast
 import pandas as pd
@@ -12,22 +10,24 @@ import os
 import numpy as np
 import scipy.stats as stats
 
+# check if useable_data dir if exists
 directory = 'useable_data'
 if not os.path.exists(directory):
     print(f"Directory '{directory}' DNE. Collect data with collector.py to run stats.py")
     exit()
 
+# create stats directory dir if DNE
 stats_directory = 'stats'
-
 if not os.path.exists(stats_directory):
     os.makedirs(stats_directory)
 
+# create sub dirs in stats_ irectory dir if DNE
 stat_plots = [f'{stats_directory}/stem_plots', f'{stats_directory}/hist_plots', f'{stats_directory}/scatter_plots']
-
 for folder in stat_plots: 
     if not os.path.exists(folder):
         os.makedirs(folder) 
 
+# concat all non-empty df
 dataframes = []
 num_of_file = 0
 for filename in os.listdir(directory):
@@ -48,14 +48,13 @@ print(f"number of dataframes used: {len(dataframes)}")
 main_df = pd.concat(dataframes, ignore_index=True).drop_duplicates(keep="last", ignore_index=True)
 main_df.to_csv(f"{stats_directory}/data.csv", index=False, header=True, sep="\t")
 
-# ping latency avg stats (, 'Date', 'Time')
+# create df of resource name, mac address, ping latency avg , date, and time
 grouped_df_ping_avg = main_df.groupby(['Resource Name', 'Mac Address', 'Date', 'Time'])['Ping Latency Avg'].apply(list).reset_index()
 grouped_df_ping_avg = grouped_df_ping_avg.explode('Ping Latency Avg')
 grouped_df_ping_avg = grouped_df_ping_avg.dropna(subset=['Ping Latency Avg'])
 
+#  create visulizations for each resource name with all associated mac addresses
 resources = grouped_df_ping_avg['Resource Name'].unique()
-
-#  resource name with associated mac addresses
 for resource in resources:
 
     resource_data = grouped_df_ping_avg[grouped_df_ping_avg['Resource Name'] == resource]
@@ -75,8 +74,8 @@ for resource in resources:
     plt.ylabel('Ping Latency Avg')
     plt.xlabel("Mac Address")
     plt.title(f"{resource.upper()}")
-    # plt.xticks(range(1, len(mac_addresses) + 1), mac_addresses, rotation=90)
-    plt.legend(title="Mac Address", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.xticks(range(1, len(mac_addresses) + 1), mac_addresses, rotation=90)
+    # plt.legend(title="Mac Address", bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
     plt.savefig(f"{stats_directory}/stem_plots/resource-{resource}-stem.png")
     plt.close()
@@ -106,22 +105,11 @@ for resource in resources:
     plt.ylabel('Ping Latency Avg')
     plt.xlabel("Mac Address")
     plt.title(f"{resource.upper()}")
-    # plt.yticks(np.linspace(0, 100, 10, dtype = int), rotation=90)
-    # plt.xticks(range(1, len(mac_addresses) + 1), mac_addresses, rotation=90)
-    plt.legend(title="Mac Address", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.xticks(range(1, len(mac_addresses) + 1), mac_addresses, rotation=90)
+    # plt.legend(title="Mac Address", bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
     plt.savefig(f"{stats_directory}/scatter_plots/resource-{resource}-scatter.png")
     plt.close()
-
-stats = grouped_df_ping_avg.groupby(['Resource Name', 'Mac Address'])['Ping Latency Avg'].agg(
-    mean_latency='mean',
-    median_latency='median',
-    variance_latency='var',
-    stddev_latency='std',
-    two_stddevs_latency=lambda x: x.std() * 2,
-    latency_25th_percentile=lambda x: x.quantile(0.25),
-    latency_75th_percentile=lambda x: x.quantile(0.75)
-).reset_index()
 
 
 # create statistic and outlier report
@@ -150,7 +138,7 @@ resource_stats = resource_stats[order]
 resource_stats.columns = column_names
 resource_stats.to_csv(f"{stats_directory}/resource-stats.csv", index=False, header=True, sep="\t")
 
-# outliers per resources
+# outliers per resource
 order = ['Resource Name', 'mac_address_list','date_list', 'time_list', 'latency_list','z_score_latency']
 column_names = ['Resource_Name', 'Mac_Address', 'Date', 'Time', 'Latency','Z_Score']
 
