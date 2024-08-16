@@ -7,3 +7,6 @@ __pycache__/
 # files
 collector_ids.csv
 topology_resource_data_map.pickle
+*.log
+*.err
+*.out

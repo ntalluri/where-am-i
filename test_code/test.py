@@ -4,6 +4,10 @@ import pandas as pd
 
 def main():   
 
+    """
+    Tests the functionality of the ID's and getting unqiue glidein data
+    """
+
     id_file_path = 'test_ids.csv'
     # get the current day 11:59 pm 
     death = datetime.now().replace(hour=23, minute=00, second=0, microsecond=0)
