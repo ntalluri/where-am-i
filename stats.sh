@@ -1,1 +1,1 @@
-python stats.py
+python src/stats.py

@@ -106,13 +106,13 @@ def main():
         db_path='GeoLite2-City_20240618/GeoLite2-City.mmdb'
 
         mmdbinspect_process = subprocess.Popen(
-            ['./mmdbinspect', '-db', db_path, pub_ip4],
+            ['binaries/mmdbinspect', '-db', db_path, pub_ip4],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
         mmdbinspect_output, mmdbinspect_error = mmdbinspect_process.communicate()
         jq_process = subprocess.Popen(
-            ['./jq-linux-amd64', '.[].Records? // [] | map(select(.Record.location.latitude != null and .Record.location.longitude != null) | {latitude: .Record.location.latitude, longitude: .Record.location.longitude, accuracy: .Record.location.accuracy_radius}) | .[]'],
+            ['binaries/jq-linux-amd64', '.[].Records? // [] | map(select(.Record.location.latitude != null and .Record.location.longitude != null) | {latitude: .Record.location.latitude, longitude: .Record.location.longitude, accuracy: .Record.location.accuracy_radius}) | .[]'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
@@ -132,13 +132,13 @@ def main():
         db_path='GeoLite2-City_20240618/GeoLite2-City.mmdb'
 
         mmdbinspect_process = subprocess.Popen(
-            ['./mmdbinspect', '-db', db_path, pub_ip6],
+            ['binaries/mmdbinspect', '-db', db_path, pub_ip6],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
         mmdbinspect_output, mmdbinspect_error = mmdbinspect_process.communicate()
         jq_process = subprocess.Popen(
-            ['./jq-linux-amd64', '.[].Records? // [] | map(select(.Record.location.latitude != null and .Record.location.longitude != null) | {latitude: .Record.location.latitude, longitude: .Record.location.longitude, accuracy: .Record.location.accuracy_radius}) | .[]'],
+            ['binaries/jq-linux-amd64', '.[].Records? // [] | map(select(.Record.location.latitude != null and .Record.location.longitude != null) | {latitude: .Record.location.latitude, longitude: .Record.location.longitude, accuracy: .Record.location.accuracy_radius}) | .[]'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
