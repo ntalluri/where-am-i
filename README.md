@@ -21,5 +21,4 @@
 
 ## TODO
 - write what each file does
-- comment stats.py code
-- clean up repo
+- clean up repo by putting src code and static binariers into own folders
