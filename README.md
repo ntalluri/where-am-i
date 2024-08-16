@@ -1,6 +1,5 @@
 # WHERE-AM-I
-
-## FILES
+## PROJECT DESCRIPTION
 
 
 ## PIPELINE
@@ -17,7 +16,10 @@
 
 `. cleanup.sh`
 
-### TODO
+## FILES
+
+
+## TODO
 - write what each file does
 - comment stats.py code
 - clean up repo
