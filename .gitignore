@@ -1,0 +1,9 @@
+# folders
+logs
+useable_data
+stats
+__pycache__/
+
+# files
+collector_ids.csv
+topology_resource_data_map.pickle

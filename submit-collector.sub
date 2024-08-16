@@ -1,0 +1,22 @@
+universe = local
+
+executable = collector.sh
+
+request_cpus = 1
+request_memory = 64MB
+request_disk = 64MB
+
+error = logs/collector.$(Cluster).$(Process).err
+output = logs/collector.$(Cluster).$(Process).out
+log = logs/collector.$(Cluster).log
+
+on_exit_remove = false
+cron_minute = */30
+cron_hour = *
+cron_day_of_month = *
+cron_month = *
+cron_day_of_week = *
+
++FacilitatorOverride = True
+
+queue 1

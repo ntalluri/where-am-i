@@ -1,0 +1,14 @@
+MY.WantGlideinDevel = true
+requirements = TARGET.IsGlideinDevel_Site
+
+executable = test-code.sh
+
+request_cpus = 1
+request_memory = 64MB
+request_disk = 64MB
+
+error = testjob.$(Cluster).$(Process).err
+output = testjob.$(Cluster).$(Process).out
+log = testjob.$(Cluster).log
+
+queue 10
