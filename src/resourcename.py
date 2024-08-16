@@ -11,7 +11,7 @@ TOPOLOGY_RESOURCE_DATA_URL = "https://topology.opensciencegrid.org/rgsummary/xml
 
 def get_topology_resource_data(
         force_update=False,
-        resource_data_path=Path("topology_resource_data_map.pickle"),
+        resource_data_path=Path("binaries/topology_resource_data_map.pickle"),
     ) -> dict:
     """Generates a dictionary that maps (lowercased) resource names
     to institutional information as provided in OSG Topology."""

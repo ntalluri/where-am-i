@@ -8,4 +8,5 @@ rm test_code/*.log
 rm test_code/*.out
 rm test_code/*.err
 rm *~
+rm -rf src/__pycache__/
 rm -rf __pycache__/
