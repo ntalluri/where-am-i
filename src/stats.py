@@ -46,7 +46,8 @@ print(f"number of dataframes: {num_of_file}")
 print(f"number of dataframes used: {len(dataframes)}")
 
 main_df = pd.concat(dataframes, ignore_index=True).drop_duplicates(keep="last", ignore_index=True)
-main_df.to_csv(f"{stats_directory}/data.csv", index=False, header=True, sep="\t")
+sorted_main_df = main_df.sort_values(['Resource Name', 'Mac Address', 'Date','Time'])
+sorted_main_df.to_csv(f"{stats_directory}/all_data.csv", index=False, header=True, sep="\t")
 
 # create df of resource name, mac address, ping latency avg , date, and time
 grouped_df_ping_avg = main_df.groupby(['Resource Name', 'Mac Address', 'Date', 'Time'])['Ping Latency Avg'].apply(list).reset_index()
